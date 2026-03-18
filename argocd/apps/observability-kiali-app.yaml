@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shop-msa-observability-kiali
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  sources:
+    - repoURL: https://kiali.org/helm-charts
+      chart: kiali-server
+      helm:
+        releaseName: kiali
+        valueFiles:
+          - $values/infra/platform/helm-values/kiali-server-values.yaml
+    - repoURL: https://github.com/REPLACE_ME/shop-msa.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shop-msa-platform
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

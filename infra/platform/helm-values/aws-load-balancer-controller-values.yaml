@@ -1,0 +1,25 @@
+﻿clusterName: shop-msa-dev-eks
+region: ap-northeast-2
+vpcId: ""
+
+serviceAccount:
+  create: true
+  name: aws-load-balancer-controller
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<account-id>:role/shop-msa-dev-aws-lb-controller
+
+replicaCount: 2
+
+enableShield: false
+enableWaf: false
+enableWafv2: false
+
+ingressClass: alb
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.38.0 (HEAD)
+  labels:
+    io.kompose.service: inventory-service
+  name: inventory-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: inventory-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.38.0 (HEAD)
+      labels:
+        io.kompose.service: inventory-service
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              value: postgresql+asyncpg://user:inventory_db_password@inventory-db:5432/inventorydb
+            - name: INTERNAL_API_SECRET
+              value: your-internal-api-secret-change-this
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: kafka:9092
+            - name: KAFKA_GROUP_ID
+              value: inventory-service
+            - name: KAFKA_TOPIC_ORDER_CREATED
+              value: order-created
+            - name: USER_SERVICE_URL
+              value: http://user-service:8000
+          image: inventory-service
+          name: inventory-service
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+      restartPolicy: Always

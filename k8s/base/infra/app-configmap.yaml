@@ -1,0 +1,27 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shop-msa-app-config
+  namespace: shop-msa-app
+data:
+  JWT_ALGORITHM: HS256
+  JWT_EXPIRE_MINUTES: "60"
+  JWT_EXPIRE_MINUTES_USER: "60"
+  JWT_EXPIRE_MINUTES_ADMIN: "30"
+
+  USER_SERVICE_URL: http://user-service:8000
+  PRODUCT_SERVICE_URL: http://product-service:8000
+  ORDER_SERVICE_URL: http://order-service:8000
+  INVENTORY_SERVICE_URL: http://inventory-service:8000
+
+  REDIS_URL: redis://redis.shop-msa-app.svc.cluster.local:6379
+  KAFKA_BOOTSTRAP_SERVERS: kafka.shop-msa-app.svc.cluster.local:9092
+  KAFKA_TOPIC_ORDER_CREATED: order-created
+  KAFKA_TOPIC_PAYMENT_CREATED: payment-created
+  KAFKA_GROUP_ID: inventory-service
+  KAFKA_GROUP_ID_PAYMENT_EVENTS: payment-event-service
+  PAYMENT_SUCCESS_RATE: "1.0"
+
+  NEXT_PUBLIC_API_URL: ""
+  INTERNAL_API_URL: https://dev-shop.wookja.cloud
+  ADMIN_API_INTERNAL_URL: https://dev-shop.wookja.cloud

@@ -1,0 +1,72 @@
+﻿name: build-push-ecr
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "frontend/**"
+      - "frontend-admin/**"
+      - "services/**"
+      - ".github/workflows/build-push-ecr.yml"
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: frontend
+            context: ./frontend
+          - service: frontend-admin
+            context: ./frontend-admin
+          - service: user-service
+            context: ./services/user-service
+          - service: product-service
+            context: ./services/product-service
+          - service: order-service
+            context: ./services/order-service
+          - service: inventory-service
+            context: ./services/inventory-service
+          - service: payment-service
+            context: ./services/payment-service
+          - service: payment-event-service
+            context: ./services/payment-event-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-session-name: gha-ecr-build
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Compute tags
+        id: tags
+        run: |
+          echo "sha_tag=${GITHUB_SHA::12}" >> $GITHUB_OUTPUT
+          echo "release_tag=release-$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/shop-msa/${{ matrix.service }}:${{ steps.tags.outputs.sha_tag }}
+            ${{ env.ECR_REGISTRY }}/shop-msa/${{ matrix.service }}:${{ steps.tags.outputs.release_tag }}

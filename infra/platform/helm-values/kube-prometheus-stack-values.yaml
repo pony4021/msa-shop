@@ -1,0 +1,37 @@
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    retention: 7d
+    resources:
+      requests:
+        cpu: 200m
+        memory: 768Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+
+grafana:
+  service:
+    type: ClusterIP
+  persistence:
+    enabled: true
+    type: pvc
+    storageClassName: efs-sc
+    accessModes:
+      - ReadWriteMany
+    size: 5Gi
+  grafana.ini:
+    server:
+      root_url: https://dev-shop.wookja.cloud/grafana/
+      serve_from_sub_path: true
+
+alertmanager:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.38.0 (HEAD)
+  labels:
+    io.kompose.service: payment-event-db
+  name: payment-event-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: payment-event-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.38.0 (HEAD)
+      labels:
+        io.kompose.service: payment-event-db
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: paymenteventdb
+            - name: POSTGRES_PASSWORD
+              value: payment_event_db_password
+            - name: POSTGRES_USER
+              value: user
+          image: postgres:16-alpine
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready -U user -d paymenteventdb
+            failureThreshold: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: payment-event-db
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: payment-event-db-data
+      restartPolicy: Always
+      volumes:
+        - name: payment-event-db-data
+          persistentVolumeClaim:
+            claimName: payment-event-db-data

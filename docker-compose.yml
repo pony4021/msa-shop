@@ -1,0 +1,329 @@
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      user-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      payment-event-service:
+        condition: service_started
+    ports:
+      - "3333:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  user-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${USER_DB_USER:-user}
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD}
+      POSTGRES_DB: userdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USER_DB_USER:-user} -d userdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  product-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${PRODUCT_DB_USER:-user}
+      POSTGRES_PASSWORD: ${PRODUCT_DB_PASSWORD}
+      POSTGRES_DB: productdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER:-user} -d productdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - product-db-data:/var/lib/postgresql/data
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  order-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${ORDER_DB_USER:-user}
+      POSTGRES_PASSWORD: ${ORDER_DB_PASSWORD}
+      POSTGRES_DB: orderdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER:-user} -d orderdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - order-db-data:/var/lib/postgresql/data
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  inventory-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${INVENTORY_DB_USER:-user}
+      POSTGRES_PASSWORD: ${INVENTORY_DB_PASSWORD}
+      POSTGRES_DB: inventorydb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${INVENTORY_DB_USER:-user} -d inventorydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - inventory-db-data:/var/lib/postgresql/data
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  payment-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${PAYMENT_DB_USER:-user}
+      POSTGRES_PASSWORD: ${PAYMENT_DB_PASSWORD}
+      POSTGRES_DB: paymentdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PAYMENT_DB_USER:-user} -d paymentdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - payment-db-data:/var/lib/postgresql/data
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  user-service:
+    build: ./services/user-service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${USER_DB_USER:-user}:${USER_DB_PASSWORD}@user-db:5432/userdb
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_MINUTES: 60
+      JWT_EXPIRE_MINUTES_USER: ${JWT_EXPIRE_MINUTES_USER:-60}
+      JWT_EXPIRE_MINUTES_ADMIN: ${JWT_EXPIRE_MINUTES_ADMIN:-30}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+    depends_on:
+      user-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - "8000"
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  product-service:
+    build: ./services/product-service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${PRODUCT_DB_USER:-user}:${PRODUCT_DB_PASSWORD}@product-db:5432/productdb
+      REDIS_URL: redis://redis:6379
+      USER_SERVICE_URL: http://user-service:8000
+      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL:-http://inventory-service:8000}
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET}
+    depends_on:
+      product-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+    expose:
+      - "8000"
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  order-service:
+    build: ./services/order-service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${ORDER_DB_USER:-user}:${ORDER_DB_PASSWORD}@order-db:5432/orderdb
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_ORDER_CREATED: order-created
+      USER_SERVICE_URL: http://user-service:8000
+      PRODUCT_SERVICE_URL: http://product-service:8000
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET}
+    depends_on:
+      order-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+    expose:
+      - "8000"
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  inventory-service:
+    build: ./services/inventory-service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${INVENTORY_DB_USER:-user}:${INVENTORY_DB_PASSWORD}@inventory-db:5432/inventorydb
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_ORDER_CREATED: order-created
+      KAFKA_GROUP_ID: inventory-service
+      USER_SERVICE_URL: http://user-service:8000
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET}
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    expose:
+      - "8000"
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  payment-service:
+    build: ./services/payment-service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${PAYMENT_DB_USER:-user}:${PAYMENT_DB_PASSWORD}@payment-db:5432/paymentdb
+      ORDER_SERVICE_URL: http://order-service:8000
+      USER_SERVICE_URL: http://user-service:8000
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET}
+      PAYMENT_SUCCESS_RATE: ${PAYMENT_SUCCESS_RATE:-1.0}
+      KAFKA_TOPIC_PAYMENT_CREATED: ${KAFKA_TOPIC_PAYMENT_CREATED:-payment-created}
+    depends_on:
+      payment-db:
+        condition: service_healthy
+      order-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+    expose:
+      - "8000"
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  payment-event-service:
+    build: ./services/payment-event-service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${PAYMENT_EVENT_DB_USER:-user}:${PAYMENT_EVENT_DB_PASSWORD:-payment_event_db_password}@payment-event-db:5432/paymenteventdb
+      REDIS_URL: redis://redis:6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_PAYMENT_CREATED: ${KAFKA_TOPIC_PAYMENT_CREATED:-payment-created}
+      KAFKA_GROUP_ID: ${KAFKA_GROUP_ID_PAYMENT_EVENTS:-payment-event-service}
+    depends_on:
+      payment-event-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    expose:
+      - "8000"
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: ""
+      INTERNAL_API_URL: http://nginx
+    depends_on:
+      nginx:
+        condition: service_started
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  payment-event-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${PAYMENT_EVENT_DB_USER:-user}
+      POSTGRES_PASSWORD: ${PAYMENT_EVENT_DB_PASSWORD:-payment_event_db_password}
+      POSTGRES_DB: paymenteventdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PAYMENT_EVENT_DB_USER:-user} -d paymenteventdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - payment-event-db-data:/var/lib/postgresql/data
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+  frontend-admin:
+    build: ./frontend-admin
+    environment:
+      NEXT_PUBLIC_API_URL: ""
+      INTERNAL_API_URL: http://nginx
+      ADMIN_API_INTERNAL_URL: http://nginx
+    expose:
+      - "3000"
+    networks:
+      - msa-network
+    restart: unless-stopped
+
+volumes:
+  user-db-data:
+  product-db-data:
+  order-db-data:
+  inventory-db-data:
+  payment-db-data:
+  payment-event-db-data:
+
+networks:
+  msa-network:
+    name: msa-network

@@ -1,0 +1,8 @@
+﻿apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: shop-msa-peer-auth
+  namespace: shop-msa-app
+spec:
+  mtls:
+    mode: PERMISSIVE

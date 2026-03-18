@@ -1,0 +1,40 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: shop-msa-gateway
+  namespace: shop-msa-app
+$patch: delete
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: shop-msa-routes
+  namespace: shop-msa-app
+$patch: delete
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: shop-msa-default-dr
+  namespace: shop-msa-app
+$patch: delete
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: shop-msa-peer-auth
+  namespace: shop-msa-app
+$patch: delete
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: efs-sc
+$patch: delete
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp3
+$patch: delete
+

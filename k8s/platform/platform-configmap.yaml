@@ -1,0 +1,9 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shop-msa-platform-config
+  namespace: shop-msa-platform
+data:
+  notes: |
+    This namespace is reserved for platform components managed by Argo CD.
+    Istio base/istiod/gateway and CSI drivers are installed before syncing app workloads.

@@ -1,0 +1,13 @@
+﻿apiVersion: v1
+kind: Namespace
+metadata:
+  name: shop-msa-app
+  labels:
+    app.kubernetes.io/name: shop-msa
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shop-msa-platform
+  labels:
+    app.kubernetes.io/name: shop-msa-platform

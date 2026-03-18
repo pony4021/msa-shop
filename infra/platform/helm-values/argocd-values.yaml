@@ -1,0 +1,33 @@
+﻿configs:
+  params:
+    server.insecure: true
+  cm:
+    url: https://argocd.dev-shop.wookja.cloud
+    application.instanceLabelKey: argocd.argoproj.io/instance
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
+    hosts:
+      - argocd.dev-shop.wookja.cloud
+
+repoServer:
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+applicationSet:
+  enabled: true
+
+controller:
+  replicas: 1
+
+redis:
+  enabled: true

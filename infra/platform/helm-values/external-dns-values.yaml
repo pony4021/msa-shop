@@ -1,0 +1,28 @@
+﻿provider: aws
+
+policy: sync
+txtOwnerId: shop-msa-dev
+txtPrefix: "external-dns-"
+
+serviceAccount:
+  create: true
+  name: external-dns
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<account-id>:role/shop-msa-dev-external-dns
+
+sources:
+  - ingress
+
+domainFilters:
+  - dev-shop.wookja.cloud
+  - shop.wookjin.cloud
+
+registry: txt
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi

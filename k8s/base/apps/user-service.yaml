@@ -1,0 +1,137 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: shop-msa-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/user-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: shop-msa-app-secrets
+                  key: USER_DATABASE_URL
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-msa-app-config
+                  key: REDIS_URL
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: shop-msa-app-secrets
+                  key: JWT_SECRET_KEY
+            - name: JWT_ALGORITHM
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-msa-app-config
+                  key: JWT_ALGORITHM
+            - name: JWT_EXPIRE_MINUTES
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-msa-app-config
+                  key: JWT_EXPIRE_MINUTES
+            - name: JWT_EXPIRE_MINUTES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-msa-app-config
+                  key: JWT_EXPIRE_MINUTES_USER
+            - name: JWT_EXPIRE_MINUTES_ADMIN
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-msa-app-config
+                  key: JWT_EXPIRE_MINUTES_ADMIN
+            - name: ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: shop-msa-app-secrets
+                  key: ADMIN_EMAIL
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shop-msa-app-secrets
+                  key: ADMIN_PASSWORD
+            - name: ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: shop-msa-app-secrets
+                  key: ADMIN_USERNAME
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: shop-msa-app
+spec:
+  selector:
+    app: user-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service
+  namespace: shop-msa-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: user-service
+  namespace: shop-msa-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: user-service

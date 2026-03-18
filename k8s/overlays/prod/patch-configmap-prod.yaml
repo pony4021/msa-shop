@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shop-msa-app-config
+  namespace: shop-msa-app
+data:
+  INTERNAL_API_URL: https://shop.wookjin.cloud
+  ADMIN_API_INTERNAL_URL: https://shop.wookjin.cloud

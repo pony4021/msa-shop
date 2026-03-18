@@ -1,0 +1,44 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - platform/postgres.yaml
+  - platform/nginx-gateway.yaml
+
+images:
+  # Use locally built images from `docker compose build` (default image name: <project>-<service>)
+  - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend
+    newName: msa-shop-frontend
+    newTag: latest
+  - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend-admin
+    newName: msa-shop-frontend-admin
+    newTag: latest
+  - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/user-service
+    newName: msa-shop-user-service
+    newTag: latest
+  - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/product-service
+    newName: msa-shop-product-service
+    newTag: latest
+  - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/order-service
+    newName: msa-shop-order-service
+    newTag: latest
+  - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/inventory-service
+    newName: msa-shop-inventory-service
+    newTag: latest
+  - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/payment-service
+    newName: msa-shop-payment-service
+    newTag: latest
+  - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/payment-event-service
+    newName: msa-shop-payment-event-service
+    newTag: latest
+
+patchesStrategicMerge:
+  - patches/patch-remove-istio-and-aws-storage.yaml
+  - patches/patch-storageclass-default.yaml
+  - patches/patch-configmap-local.yaml
+  - patches/patch-secrets-local.yaml
+  - patches/patch-remove-hpa-pdb.yaml
+  - patches/patch-local-sizing.yaml
+  - patches/patch-kafka-local.yaml
+

@@ -1,0 +1,30 @@
+﻿apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-topic-init
+  namespace: shop-msa-app
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: topic-init
+          image: confluentinc/cp-kafka:7.6.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              echo "Waiting for kafka broker..."
+              for i in {1..60}; do
+                if kafka-topics --bootstrap-server kafka.shop-msa-app.svc.cluster.local:9092 --list >/dev/null 2>&1; then
+                  break
+                fi
+                sleep 5
+              done
+
+              kafka-topics --bootstrap-server kafka.shop-msa-app.svc.cluster.local:9092 --create --if-not-exists --topic order-created --partitions 1 --replication-factor 1
+              kafka-topics --bootstrap-server kafka.shop-msa-app.svc.cluster.local:9092 --create --if-not-exists --topic payment-created --partitions 1 --replication-factor 1
+
+              echo "Topics initialized"

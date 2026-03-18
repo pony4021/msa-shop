@@ -1,0 +1,102 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-admin
+  namespace: shop-msa-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend-admin
+  template:
+    metadata:
+      labels:
+        app: frontend-admin
+    spec:
+      containers:
+        - name: frontend-admin
+          image: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend-admin:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-msa-app-config
+                  key: NEXT_PUBLIC_API_URL
+            - name: INTERNAL_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-msa-app-config
+                  key: INTERNAL_API_URL
+            - name: ADMIN_API_INTERNAL_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: shop-msa-app-config
+                  key: ADMIN_API_INTERNAL_URL
+          readinessProbe:
+            httpGet:
+              path: /admin
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /admin
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 384Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-admin
+  namespace: shop-msa-app
+spec:
+  selector:
+    app: frontend-admin
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+      name: http
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-admin
+  namespace: shop-msa-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend-admin
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend-admin
+  namespace: shop-msa-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: frontend-admin

@@ -1,0 +1,5 @@
+# frontend/.dockerignore
+node_modules
+.next
+npm-debug.log
+frontend

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.38.0 (HEAD)
+  labels:
+    io.kompose.service: product-service
+  name: product-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: product-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.38.0 (HEAD)
+      labels:
+        io.kompose.service: product-service
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              value: postgresql+asyncpg://user:product_db_password@product-db:5432/productdb
+            - name: INTERNAL_API_SECRET
+              value: your-internal-api-secret-change-this
+            - name: INVENTORY_SERVICE_URL
+              value: http://inventory-service:8000
+            - name: REDIS_URL
+              value: redis://redis:6379
+            - name: USER_SERVICE_URL
+              value: http://user-service:8000
+          image: product-service
+          name: product-service
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+      restartPolicy: Always

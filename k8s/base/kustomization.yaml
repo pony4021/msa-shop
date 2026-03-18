@@ -1,0 +1,24 @@
+﻿apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - infra/namespaces.yaml
+  - infra/app-configmap.yaml
+  - infra/app-secrets.yaml
+  - infra/networkpolicy.yaml
+  - infra/storageclass-efs.yaml
+  - infra/storageclass-gp3.yaml
+  - infra/istio-gateway.yaml
+  - infra/istio-virtualservice.yaml
+  - infra/istio-destinationrule.yaml
+  - infra/istio-peerauthentication.yaml
+  - platform/redis-statefulset.yaml
+  - platform/kafka-statefulset.yaml
+  - jobs/kafka-topic-init-job.yaml
+  - apps/frontend.yaml
+  - apps/frontend-admin.yaml
+  - apps/user-service.yaml
+  - apps/product-service.yaml
+  - apps/order-service.yaml
+  - apps/inventory-service.yaml
+  - apps/payment-service.yaml
+  - apps/payment-event-service.yaml

@@ -1,0 +1,133 @@
+﻿apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: shop-msa-routes
+  namespace: shop-msa-app
+spec:
+  hosts:
+    - dev-shop.wookja.cloud
+  gateways:
+    - shop-msa-gateway
+  http:
+    - name: grafana-ui
+      match:
+        - uri:
+            prefix: /grafana
+      route:
+        - destination:
+            host: kube-prometheus-stack-grafana.shop-msa-platform.svc.cluster.local
+            port:
+              number: 80
+
+    - name: kiali-ui
+      match:
+        - uri:
+            prefix: /kiali
+      route:
+        - destination:
+            host: kiali.shop-msa-platform.svc.cluster.local
+            port:
+              number: 20001
+
+    - name: admin-next-assets
+      match:
+        - uri:
+            prefix: /_next/
+          headers:
+            referer:
+              regex: ".*/admin.*"
+      route:
+        - destination:
+            host: frontend-admin.shop-msa-app.svc.cluster.local
+            port:
+              number: 3000
+
+    - name: shop-next-assets
+      match:
+        - uri:
+            prefix: /_next/
+      route:
+        - destination:
+            host: frontend.shop-msa-app.svc.cluster.local
+            port:
+              number: 3000
+
+    - name: admin-pages
+      match:
+        - uri:
+            prefix: /admin
+      route:
+        - destination:
+            host: frontend-admin.shop-msa-app.svc.cluster.local
+            port:
+              number: 3000
+
+    - name: users-api
+      match:
+        - uri:
+            prefix: /api/users/
+      route:
+        - destination:
+            host: user-service.shop-msa-app.svc.cluster.local
+            port:
+              number: 8000
+
+    - name: products-api
+      match:
+        - uri:
+            prefix: /api/products/
+      route:
+        - destination:
+            host: product-service.shop-msa-app.svc.cluster.local
+            port:
+              number: 8000
+
+    - name: orders-api
+      match:
+        - uri:
+            prefix: /api/orders/
+      route:
+        - destination:
+            host: order-service.shop-msa-app.svc.cluster.local
+            port:
+              number: 8000
+
+    - name: inventory-api
+      match:
+        - uri:
+            prefix: /api/inventory/
+      route:
+        - destination:
+            host: inventory-service.shop-msa-app.svc.cluster.local
+            port:
+              number: 8000
+
+    - name: payments-api
+      match:
+        - uri:
+            prefix: /api/payments/
+      route:
+        - destination:
+            host: payment-service.shop-msa-app.svc.cluster.local
+            port:
+              number: 8000
+
+    - name: payment-events-api
+      match:
+        - uri:
+            prefix: /api/payment-events/
+      route:
+        - destination:
+            host: payment-event-service.shop-msa-app.svc.cluster.local
+            port:
+              number: 8000
+
+    - name: root-frontend
+      match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: frontend.shop-msa-app.svc.cluster.local
+            port:
+              number: 3000

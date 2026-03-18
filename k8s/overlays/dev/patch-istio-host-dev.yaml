@@ -1,0 +1,31 @@
+﻿apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: shop-msa-gateway
+  namespace: shop-msa-app
+spec:
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - dev-shop.wookja.cloud
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: dev-shop-wookja-cloud-tls
+      hosts:
+        - dev-shop.wookja.cloud
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: shop-msa-routes
+  namespace: shop-msa-app
+spec:
+  hosts:
+    - dev-shop.wookja.cloud

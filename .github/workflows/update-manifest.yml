@@ -1,0 +1,43 @@
+﻿name: update-manifest
+
+on:
+  workflow_run:
+    workflows: ["build-push-ecr"]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  update:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Update dev image tag placeholders
+        run: |
+          set -euo pipefail
+          SHA_TAG="${GITHUB_SHA::12}"
+          FILE="k8s/overlays/dev/kustomization.yaml"
+          sed -i "s/newTag: dev-<gitsha>/newTag: ${SHA_TAG}/g" "$FILE"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(gitops): update dev image tags to ${GITHUB_SHA::12}"
+          title: "chore(gitops): update dev image tags"
+          body: |
+            Automated GitOps manifest update.
+            - Environment: dev
+            - Image tag: `${GITHUB_SHA::12}`
+          branch: chore/gitops-image-update-${{ github.run_id }}
+          base: main
+          labels: |
+            gitops
+            automated-pr

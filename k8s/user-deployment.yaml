@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: msa-shop-user-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        # env는 반드시 여기(containers 내부)에 있어야 합니다!
+        env:
+        - name: DATABASE_URL
+          value: "postgresql+asyncpg://user:password@user-db:5432/userdb"
+        - name: JWT_SECRET_KEY
+          valueFrom: { secretKeyRef: { name: user-secrets, key: JWT_SECRET_KEY } }
+        - name: INTERNAL_API_SECRET
+          valueFrom: { secretKeyRef: { name: user-secrets, key: INTERNAL_API_SECRET } }
+        - name: ADMIN_EMAIL
+          valueFrom: { secretKeyRef: { name: user-secrets, key: ADMIN_EMAIL } }
+        - name: ADMIN_PASSWORD
+          valueFrom: { secretKeyRef: { name: user-secrets, key: ADMIN_PASSWORD } }
+        - name: ADMIN_USERNAME
+          valueFrom: { secretKeyRef: { name: user-secrets, key: ADMIN_USERNAME } }

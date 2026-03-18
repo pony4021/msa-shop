@@ -1,0 +1,18 @@
+﻿region               = "ap-northeast-2"
+project_name         = "shop-msa"
+environment          = "dev"
+cluster_version      = "1.30"
+node_instance_types  = ["t3.medium"]
+node_desired_size    = 2
+node_min_size        = 2
+node_max_size        = 3
+
+db_master_username   = "shopmsa"
+db_master_password   = "CHANGE_ME_STRONG_PASSWORD"
+db_multi_az          = false
+
+enable_alb_controller = false
+enable_istio          = true
+enable_efs            = true
+enable_external_dns   = false
+enable_cert_manager   = true
