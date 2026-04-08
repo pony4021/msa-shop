@@ -20,21 +20,23 @@ spec:
       labels:
         io.kompose.service: order-service
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - env:
             - name: DATABASE_URL
-              value: postgresql+asyncpg://user:order_db_password@order-db:5432/orderdb
+              value: postgresql+asyncpg://shopmsa:CHANGE_ME_DB_PASSWORD@order-db.shop-msa-app.svc.cluster.local:5432/orderdb
             - name: INTERNAL_API_SECRET
               value: your-internal-api-secret-change-this
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: kafka:9092
+              value: kafka.shop-msa-app.svc.cluster.local:9092
             - name: KAFKA_TOPIC_ORDER_CREATED
               value: order-created
             - name: PRODUCT_SERVICE_URL
-              value: http://product-service:8000
+              value: http://product-service.shop-msa-app.svc.cluster.local:8000
             - name: USER_SERVICE_URL
-              value: http://user-service:8000
-          image: order-service
+              value: http://user-service.shop-msa-app.svc.cluster.local:8000
+          image: ghcr.io/pony4021/order-service:latest
           name: order-service
           ports:
             - containerPort: 8000

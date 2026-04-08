@@ -20,21 +20,25 @@ spec:
       labels:
         io.kompose.service: payment-service
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - env:
             - name: DATABASE_URL
-              value: postgresql+asyncpg://user:payment_db_password@payment-db:5432/paymentdb
+              value: postgresql+asyncpg://shopmsa:CHANGE_ME_DB_PASSWORD@payment-db.shop-msa-app.svc.cluster.local:5432/paymentdb
             - name: INTERNAL_API_SECRET
               value: your-internal-api-secret-change-this
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: kafka.shop-msa-app.svc.cluster.local:9092
             - name: KAFKA_TOPIC_PAYMENT_CREATED
               value: payment-created
             - name: ORDER_SERVICE_URL
-              value: http://order-service:8000
+              value: http://order-service.shop-msa-app.svc.cluster.local:8000
             - name: PAYMENT_SUCCESS_RATE
               value: "1.0"
             - name: USER_SERVICE_URL
-              value: http://user-service:8000
-          image: payment-service
+              value: http://user-service.shop-msa-app.svc.cluster.local:8000
+          image: ghcr.io/pony4021/payment-service:latest
           name: payment-service
           ports:
             - containerPort: 8000

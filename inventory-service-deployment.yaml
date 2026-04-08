@@ -20,21 +20,23 @@ spec:
       labels:
         io.kompose.service: inventory-service
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - env:
             - name: DATABASE_URL
-              value: postgresql+asyncpg://user:inventory_db_password@inventory-db:5432/inventorydb
+              value: postgresql+asyncpg://shopmsa:CHANGE_ME_DB_PASSWORD@inventory-db.shop-msa-app.svc.cluster.local:5432/inventorydb
             - name: INTERNAL_API_SECRET
               value: your-internal-api-secret-change-this
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: kafka:9092
+              value: kafka.shop-msa-app.svc.cluster.local:9092
             - name: KAFKA_GROUP_ID
               value: inventory-service
             - name: KAFKA_TOPIC_ORDER_CREATED
               value: order-created
             - name: USER_SERVICE_URL
-              value: http://user-service:8000
-          image: inventory-service
+              value: http://user-service.shop-msa-app.svc.cluster.local:8000
+          image: ghcr.io/pony4021/inventory-service:latest
           name: inventory-service
           ports:
             - containerPort: 8000

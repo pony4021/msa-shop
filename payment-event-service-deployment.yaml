@@ -20,19 +20,21 @@ spec:
       labels:
         io.kompose.service: payment-event-service
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - env:
             - name: DATABASE_URL
-              value: postgresql+asyncpg://user:payment_event_db_password@payment-event-db:5432/paymenteventdb
+              value: postgresql+asyncpg://shopmsa:CHANGE_ME_DB_PASSWORD@payment-event-db.shop-msa-app.svc.cluster.local:5432/paymenteventdb
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: kafka:9092
+              value: kafka.shop-msa-app.svc.cluster.local:9092
             - name: KAFKA_GROUP_ID
               value: payment-event-service
             - name: KAFKA_TOPIC_PAYMENT_CREATED
               value: payment-created
             - name: REDIS_URL
               value: redis://redis:6379
-          image: payment-event-service
+          image: ghcr.io/pony4021/payment-event-service:latest
           name: payment-event-service
           ports:
             - containerPort: 8000

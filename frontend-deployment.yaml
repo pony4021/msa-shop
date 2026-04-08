@@ -20,11 +20,13 @@ spec:
       labels:
         io.kompose.service: frontend
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - env:
             - name: INTERNAL_API_URL
               value: http://nginx
             - name: NEXT_PUBLIC_API_URL
-          image: frontend
+          image: ghcr.io/pony4021/frontend:latest
           name: frontend
       restartPolicy: Always

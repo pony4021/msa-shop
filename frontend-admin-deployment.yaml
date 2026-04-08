@@ -20,6 +20,8 @@ spec:
       labels:
         io.kompose.service: frontend-admin
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - env:
             - name: ADMIN_API_INTERNAL_URL
@@ -27,7 +29,7 @@ spec:
             - name: INTERNAL_API_URL
               value: http://nginx
             - name: NEXT_PUBLIC_API_URL
-          image: frontend-admin
+          image: ghcr.io/pony4021/frontend-admin:latest
           name: frontend-admin
           ports:
             - containerPort: 3000
