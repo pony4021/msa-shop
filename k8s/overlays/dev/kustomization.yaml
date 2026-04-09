@@ -5,21 +5,29 @@ resources:
 
 images:
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend
-    newTag: dev-<gitsha>
+    newName: msa-shop-frontend
+    newTag: latest
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend-admin
-    newTag: dev-<gitsha>
+    newName: msa-shop-frontend-admin
+    newTag: latest
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/user-service
-    newTag: dev-<gitsha>
+    newName: msa-shop-user-service
+    newTag: latest
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/product-service
-    newTag: dev-<gitsha>
+    newName: msa-shop-product-service
+    newTag: latest
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/order-service
-    newTag: dev-<gitsha>
+    newName: msa-shop-order-service
+    newTag: latest
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/inventory-service
-    newTag: dev-<gitsha>
+    newName: msa-shop-inventory-service
+    newTag: latest
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/payment-service
-    newTag: dev-<gitsha>
+    newName: msa-shop-payment-service
+    newTag: latest
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/payment-event-service
-    newTag: dev-<gitsha>
+    newName: msa-shop-payment-event-service
+    newTag: latest
 
 patchesStrategicMerge:
   - patch-istio-host-dev.yaml
