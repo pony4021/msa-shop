@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: msa-shop
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pony4021/msa-shop.git
+    targetRevision: develop
+    path: k8s/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shop-msa-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
