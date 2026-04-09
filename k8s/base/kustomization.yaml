@@ -11,8 +11,22 @@ resources:
   - infra/istio-virtualservice.yaml
   - infra/istio-destinationrule.yaml
   - infra/istio-peerauthentication.yaml
-  - platform/redis-statefulset.yaml
-  - platform/kafka-statefulset.yaml
+  - infra/db/user-db-deployment.yaml
+  - infra/db/user-db-data-persistentvolumeclaim.yaml
+  - infra/db/product-db-deployment.yaml
+  - infra/db/product-db-data-persistentvolumeclaim.yaml
+  - infra/db/order-db-deployment.yaml
+  - infra/db/order-db-data-persistentvolumeclaim.yaml
+  - infra/db/inventory-db-deployment.yaml
+  - infra/db/inventory-db-data-persistentvolumeclaim.yaml
+  - infra/db/payment-db-deployment.yaml
+  - infra/db/payment-db-data-persistentvolumeclaim.yaml
+  - infra/db/payment-event-db-deployment.yaml
+  - infra/db/payment-event-db-data-persistentvolumeclaim.yaml
+  - infra/redis-deployment.yaml
+  - infra/kafka-deployment.yaml
+  - infra/nginx-deployment.yaml
+  - infra/nginx-cm0-configmap.yaml
   - jobs/kafka-topic-init-job.yaml
   - apps/frontend.yaml
   - apps/frontend-admin.yaml
