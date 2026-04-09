@@ -7,6 +7,5 @@ data:
   # Local: access through `kubectl port-forward svc/nginx 3333:80`
   INTERNAL_API_URL: http://nginx.shop-msa-app.svc.cluster.local
   ADMIN_API_INTERNAL_URL: http://nginx.shop-msa-app.svc.cluster.local
-  # Kafka (local single broker with headless Service)
+  # Kafka (local single broker Deployment + Service)
   KAFKA_BOOTSTRAP_SERVERS: kafka.shop-msa-app.svc.cluster.local:9092
-

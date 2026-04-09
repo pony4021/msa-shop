@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
   - platform/postgres.yaml
+  - platform/messaging-services.yaml
   - platform/nginx-gateway.yaml
 
 images:
@@ -35,10 +36,8 @@ images:
 
 patchesStrategicMerge:
   - patches/patch-remove-istio-and-aws-storage.yaml
-  - patches/patch-storageclass-default.yaml
   - patches/patch-configmap-local.yaml
   - patches/patch-secrets-local.yaml
   - patches/patch-remove-hpa-pdb.yaml
   - patches/patch-local-sizing.yaml
-  - patches/patch-kafka-local.yaml
-
+  - patches/patch-kafka-local-deployment.yaml

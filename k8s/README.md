@@ -4,7 +4,7 @@
 
 - **`k8s/base`**: 공통 리소스 (apps, redis/kafka, 공통 ConfigMap/Secret, 네임스페이스 등)
 - **`k8s/overlays/dev|stg|prod`**: EKS/Istio + 외부 DB(RDS) 전제
-- **`k8s/overlays/local`**: 로컬/단순 K8s에서 바로 실행할 수 있도록 **Istio 제거 + in-cluster Postgres + nginx gateway**를 추가
+- **`k8s/overlays/local`**: 로컬/단순 K8s에서 바로 실행할 수 있도록 **Istio 제거 + in-cluster Postgres + nginx gateway + local kafka/redis service**를 추가
 
 ---
 
@@ -23,18 +23,22 @@
 
 ### 2) (선택) StorageClass 이름 확인
 
-기본값은 `standard`로 되어 있습니다.
+local Postgres `StatefulSet`의 기본값은 `standard`로 되어 있습니다.
 
-- `k8s/overlays/local/patches/patch-storageclass-default.yaml`
 - `k8s/overlays/local/platform/postgres.yaml`
 
-로컬 클러스터 기본 StorageClass가 `standard`가 아니면 해당 값을 바꿔주세요.
+로컬 클러스터 기본 StorageClass가 `standard`가 아니면 `k8s/overlays/local/platform/postgres.yaml`의 `storageClassName` 값을 바꿔주세요.
 
 ### 3) 적용
 
 ```bash
 kubectl apply -k k8s/overlays/local
 ```
+
+local overlay는 Kafka/Redis를 `Deployment + Service` 조합으로 사용합니다.
+
+- `k8s/overlays/local/platform/messaging-services.yaml`
+- `k8s/overlays/local/patches/patch-kafka-local-deployment.yaml`
 
 ### 4) 접근
 
@@ -61,7 +65,12 @@ kubectl -n shop-msa-app port-forward svc/nginx 3333:80
 클러스터 유형에 따라 아래 중 하나가 필요합니다.
 
 - **Docker Desktop Kubernetes**: 로컬 Docker 이미지가 그대로 사용되는 경우가 많습니다.
+- **minikube**: 노드에 이미지를 명시적으로 로드하는 편이 안전합니다.
 - **kind**: 노드로 이미지를 로드해야 합니다.
+
+```bash
+minikube image load msa-shop-user-service:latest msa-shop-product-service:latest msa-shop-order-service:latest msa-shop-inventory-service:latest msa-shop-payment-service:latest msa-shop-payment-event-service:latest msa-shop-frontend:latest msa-shop-frontend-admin:latest
+```
 
 ```bash
 docker compose build
@@ -79,4 +88,3 @@ kubectl apply -k k8s/overlays/dev
 ```
 
 > dev/stg/prod는 Istio CRD/리소스와 외부 DB 엔드포인트(Secret 내 `*_DATABASE_URL`)가 필요합니다.
-
