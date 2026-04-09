@@ -1,0 +1,15 @@
+package-lock.json
+package.json
+node_modules/
+frontend/
+frontend-admin/
+services/
+docker-compose.yml
+AGENTS.md
+README.md
+infra/
+k8s/
+argocd/
+*.md
+.git/
+.github/
