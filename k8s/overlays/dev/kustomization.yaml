@@ -5,8 +5,7 @@ resources:
 
 images:
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend
-    newName: msa-shop-frontend
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/frontend–260410-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend-admin
     newName: msa-shop-frontend-admin
     newTag: latest
