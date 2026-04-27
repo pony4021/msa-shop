@@ -28,5 +28,6 @@ export default function HomePage(): null {
       redirect("/admin");
     }
   }
+  // Keep the storefront landing route on products by default.
   redirect("/products");
 }
