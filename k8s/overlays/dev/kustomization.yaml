@@ -1,25 +1,33 @@
-ÔªøapiVersion: kustomize.config.k8s.io/v1beta1
+apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base
 
 images:
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend
-    newName: ghcr.io/pony4021/msa-shop/frontend–260410-01
+    newName: ghcr.io/pony4021/msa-shop/frontend
+    newTag: 20260410-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend-admin
-    newName: ghcr.io/pony4021/msa-shop/frontend-admin–260427-01
+    newName: ghcr.io/pony4021/msa-shop/frontend-admin
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/user-service
-    newName: ghcr.io/pony4021/msa-shop/user-service–260427-01
+    newName: ghcr.io/pony4021/msa-shop/user-service
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/product-service
-    newName: ghcr.io/pony4021/msa-shop/product-service–260427-01
+    newName: ghcr.io/pony4021/msa-shop/product-service
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/order-service
-    newName: ghcr.io/pony4021/msa-shop/order-service–260427-01
+    newName: ghcr.io/pony4021/msa-shop/order-service
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/inventory-service
-    newName: ghcr.io/pony4021/msa-shop/inventory-service–260427-01
+    newName: ghcr.io/pony4021/msa-shop/inventory-service
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/payment-service
-    newName: ghcr.io/pony4021/msa-shop/payment-service–260427-01
+    newName: ghcr.io/pony4021/msa-shop/payment-service
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/payment-event-service
-    newName: ghcr.io/pony4021/msa-shop/payment-event-service–260427-01
+    newName: ghcr.io/pony4021/msa-shop/payment-event-service
+    newTag: 20260427-01
 
 patchesStrategicMerge:
   - patch-istio-host-dev.yaml

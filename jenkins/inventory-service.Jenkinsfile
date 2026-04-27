@@ -70,7 +70,8 @@ pipeline {
       steps {
         sh """
           set -euo pipefail
-          perl -0pi -e 's#(name:\\s*<aws_account_id>\\.dkr\\.ecr\\.ap-northeast-2\\.amazonaws\\.com\\/shop-msa\\/${env.SERVICE_NAME}\\s*\\n\\s*newName:\\s*)([^\\n]+)(\\s*\\n\\s*newTag:\\s*)([^\\n]+)#\\${1}${env.REGISTRY}/${env.SERVICE_NAME}\\${3}${env.IMAGE_TAG}#g' ${env.MANIFEST_FILE}
+          chmod +x scripts/update_kustomize_image.sh
+          ./scripts/update_kustomize_image.sh ${env.MANIFEST_FILE} ${env.SERVICE_NAME} ${env.REGISTRY}/${env.SERVICE_NAME} ${env.IMAGE_TAG}
         """
       }
     }
