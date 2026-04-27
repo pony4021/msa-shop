@@ -22,6 +22,7 @@ function parseJwtPayload(token: string): JwtPayload | null {
 
 export default function HomePage(): null {
   const token = cookies().get("access_token")?.value;
+  // CI/CD webhook smoke test: keep this branch lightweight and side-effect free.
   if (token) {
     const payload = parseJwtPayload(token);
     if (payload?.is_admin) {
