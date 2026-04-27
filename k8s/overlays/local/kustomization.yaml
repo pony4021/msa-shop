@@ -8,31 +8,31 @@ resources:
   - platform/nginx-gateway.yaml
 
 images:
-  # Use locally built images from `docker compose build` (default image name: <project>-<service>)
+  # Use registry images so Jenkins -> Argo CD can roll updates automatically on local clusters.
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend
-    newName: msa-shop-frontend
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/frontend
+    newTag: 20260410-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend-admin
-    newName: msa-shop-frontend-admin
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/frontend-admin
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/user-service
-    newName: msa-shop-user-service
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/user-service
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/product-service
-    newName: msa-shop-product-service
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/product-service
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/order-service
-    newName: msa-shop-order-service
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/order-service
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/inventory-service
-    newName: msa-shop-inventory-service
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/inventory-service
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/payment-service
-    newName: msa-shop-payment-service
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/payment-service
+    newTag: 20260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/payment-event-service
-    newName: msa-shop-payment-event-service
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/payment-event-service
+    newTag: 20260427-01
 
 patchesStrategicMerge:
   - patches/patch-remove-istio-and-aws-storage.yaml

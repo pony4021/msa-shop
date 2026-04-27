@@ -4,7 +4,7 @@ pipeline {
   environment {
     REGISTRY = 'ghcr.io/pony4021/msa-shop'
     MANIFEST_BRANCH = 'develop'
-    MANIFEST_FILE = 'k8s/overlays/dev/kustomization.yaml'
+    MANIFEST_FILE = 'k8s/overlays/local/kustomization.yaml'
     GITOPS_REPO = 'https://github.com/pony4021/msa-shop.git'
     SERVICE_NAME = 'inventory-service'
     BUILD_CONTEXT = 'services/inventory-service'
