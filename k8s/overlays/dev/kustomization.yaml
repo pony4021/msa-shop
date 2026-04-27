@@ -20,8 +20,7 @@ images:
     newName: msa-shop-inventory-service
     newTag: latest
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/payment-service
-    newName: msa-shop-payment-service
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/payment-service–260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/payment-event-service
     newName: ghcr.io/pony4021/msa-shop/payment-event-service–260427-01
 
