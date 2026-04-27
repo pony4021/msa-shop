@@ -9,8 +9,7 @@ images:
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/frontend-admin
     newName: ghcr.io/pony4021/msa-shop/frontend-admin–260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/user-service
-    newName: msa-shop-user-service
-    newTag: latest
+    newName: ghcr.io/pony4021/msa-shop/user-service–260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/product-service
     newName: ghcr.io/pony4021/msa-shop/product-service–260427-01
   - name: <aws_account_id>.dkr.ecr.ap-northeast-2.amazonaws.com/shop-msa/order-service
